@@ -23,4 +23,4 @@ To run this script, you’ll need:
 Install the required libraries with:
 
 ```bash
-pip install requests pandas
+pip install requests pandas json numpy datetime
