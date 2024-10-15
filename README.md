@@ -15,12 +15,12 @@ To run this script, you’ll need:
 - Python 3.11.6+
 - The following Python libraries:
   - `requests` for making API requests
-  - `pandas` 
-  - `json`
-  - `numpy`
+  - `pandas` for CSV creation
+  - `json` for API data retrieval
+  - `numpy` 
   - `datetime`
 
 Install the required libraries with:
 
 ```bash
-pip install requests pandas json numpy datetime
+pip install requests pandas numpy datetime
