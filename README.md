@@ -7,7 +7,7 @@ This Python script automates the process of downloading data from the CHORDS dat
 - Supports customizable API parameters
   - CHORDS portal, instrument ID's, and data period in addition to other optional parameters
 - Saves the downloaded data as a CSV, with variable (sensor) shortnames used as column headers
-- Includes API error handling, including an exponential backoff method to reduce excess datapoints
+- Includes API error handling, most noteably an exponential backoff method to reduce excess datapoints
 
 ## Requirements
 
