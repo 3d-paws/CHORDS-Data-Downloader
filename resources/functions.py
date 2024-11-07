@@ -157,6 +157,34 @@ def sort_columns(columns:list, portal_name:str) -> list:
         'bp1', 'bp2',
         'hth', 'bpc', 'bcs', 'css', 'cfr'
     ]
+    za_sort = [ # Zambia
+        'bmp_temp', 't2', 'bme_temp', 'htu21d_temp', 't1', 'mcp9808', 't3',
+        'bmp_pressure', 'sp1', 'bme_pressure',
+        'bmp_slp', 'msl1', 'bme_slp', 
+        'htu21d_humidity', 'rh1', 'bme_humidity',
+        'wind_direction', 'wd', 'wd_compass_dir',
+        'wind_speed', 'ws',
+        'rain',
+        'sw', 'si1145_vis', 'si1145_ir', 'si1145_uv'
+    ]
+    k_sort = [ # Kenya
+        'st1', 't1', 'bt1', 't2', 'mt1', 't3', 
+        'sh1', 'rh1',
+        'bp1', 'sp1', 'msl1',
+        'rg', 'rain', 'rgs', 'rgt', 'rgp', 
+        'ws', 'wd', 'wd_compass_dir', 'wg', 'wgd', 'wgd_compass_dir', 
+        'sv1', 'vis1', 'si1', 'ir1', 'su1', 'uv1', 
+        'hth', 'bpc', 'bcs', 'cfr', 'css'
+    ]
+    bg_sort = [ # Bangladesh
+        'bmp_temp', 'htu21d_temp', 'mcp9808',
+        'bmp_pressure', 'bmp_slp',
+        'htu21d_humidity',
+        'wind_direction', 'wd_compass_dir',
+        'wind_speed',
+        'rain',
+        'si1145_vis', 'si1145_ir', 'si1145_uv'
+    ]
 
     portal_name_lower = portal_name.lower()
 
@@ -176,6 +204,12 @@ def sort_columns(columns:list, portal_name:str) -> list:
         column_map = {col: i for i, col in enumerate(a_sort)}
     elif portal_name_lower == "Zimbabwe".lower():
         column_map = {col: i for i, col in enumerate(z_sort)}
+    elif portal_name_lower == "Zambia".lower():
+        column_map = {col: i for i, col in enumerate(za_sort)}
+    elif portal_name_lower == "Kenya".lower():
+        column_map = {col: i for i, col in enumerate(k_sort)}
+    elif portal_name_lower == "Bangladesh".lower():
+        column_map = {col: i for i, col in enumerate(bg_sort)}
     else:
         print("Could not sort columns.")
         sys.exit(1) 
@@ -380,7 +414,7 @@ def get_timestamps(start_time:datetime, end_time:datetime, divisions:int) -> lis
 
 """
 Accepts a timestamp string from the CHORDS API and parses out the timestamp. Returns a datetime object of the parameter.
-    e.g.  '2023-12-17T18:45:56Z'
+e.g.  '2023-12-17T18:45:56Z'
 """
 def get_time(timestamp:str) -> datetime:
     if not isinstance(timestamp, str):
@@ -461,9 +495,6 @@ def reduce_datapoints(error_message:str, iD:int, timestamp_start:datetime, times
 
 """
 Handles specific time window requested by user. Stores only data that falls into the time window specified and returns data from API pull as a list of lists.
-
-TO DO: Increase efficiency. Currently steps through day-by-day, will take forever for large amounts of data.
-       Use Pandas for this purpose because it is undoubtedbly better
 """
 def time_window(df:pd.DataFrame, time_window_start:dt_time, time_window_end:dt_time, filepath:str) -> list:
     if not isinstance(df, pd.DataFrame):
@@ -477,7 +508,9 @@ def time_window(df:pd.DataFrame, time_window_start:dt_time, time_window_end:dt_t
     
     df['time_only'] = df['time'].dt.time
     reduced = df[(df['time_only'] >= time_window_start) & (df['time_only'] <= time_window_end)]
-    pd.options.mode.chained_assignment = None  # Suppresses the warning
+
+    pd.options.mode.chained_assignment = None  # suppresses the warning
+
     reduced.drop(columns=['time_only'], inplace=True)
     reduced.set_index('time', inplace=True)
     reduced.to_csv(filepath)
