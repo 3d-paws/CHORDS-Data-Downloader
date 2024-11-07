@@ -107,16 +107,17 @@ def sort_columns(columns:list, portal_name:str) -> list:
         raise TypeError(f"The 'portal_name' parameter in sort_columns() should be of type <str>, passed: {type(portal_name)}")
 
     b_sort = [ # Barbados
-        't1', 't2', 't3', 'rh1', 'msl1', 'sp1', 'ws', 'wd', 'rain', 'vis1', 'ir1', 'uv1'
+        't1', 't2', 't3', 'rh1', 'msl1', 'sp1', 'ws', 'wd', 'wd_compass_dir', 'rain', 'vis1', 'ir1', 'uv1'
     ]
     t_sort = [ # Trinidad
-        'bt1', 'mt1', 'ht1', 'bp1', 'bh1', 'hh1', 'ws', 'wd', 'wg', 'wgd', 'rg', 'sv1', 'si1', 'su1', 'bcs', 'bpc', 'cfr', 'css'
+        'bt1', 'mt1', 'ht1', 'bp1', 'bh1', 'hh1', 'ws', 'wd', 'wd_compass_dir', 'wg', 'wgd', 'wgd_compass_dir', 'rg', 
+        'sv1', 'si1', 'su1', 'bcs', 'bpc', 'cfr', 'css'
     ]
     threeD_sort = [ # 3D PAWS
         't1', 't2', 't3', 'ht1', 'ht2', 'bt1', 'mt1', 'st1', 'htu21d_temp', 'mcp9808', 'bmp_temp', 'bme_temp', 
         'bp1', 'sp1', 'msl1', 'bmp_slp', 'bme_slp', 'bmp_pressure', 'bme_pressure', 
         'bmp_altitude',
-        'ws', 'wind_speed', 'wd', 'wind_direction', 'wg', 'wgd',
+        'ws', 'wind_speed', 'wd', 'wind_direction', 'wd_compass_dir', 'wg', 'wgd', 'wgd_compass_dir',
         'hh1', 'hh2', 'rh1', 'bh1', 'sh1', 'htu21d_humidity', 'bme_humidity',
         'rain', 'rg', 'rgt', 'rgp', 'rgds',
         'h1', 'wlo', 'wld', 'wlm', 'wlr', # water level sensors
@@ -130,7 +131,7 @@ def sort_columns(columns:list, portal_name:str) -> list:
     ]
     threeD_cal_sort = [ # 3D Calibration
         'htu21d_temp', 'bmp_temp', 'mcp9808', 'sht31d_temp', 'sht31d_humidity', 'htu21d_humidity', 'bmp_slp', 'bmp_pressure', 'rain', 'wind_speed', 
-        'wind_direction', 'wg', 'wgd', 'si1145_vis', 'si1145_ir', 'si1145_uv', 'bpc'
+        'wind_direction', 'wd_compass_dir', 'wg', 'wgd', 'wgd_compass_dir', 'si1145_vis', 'si1145_ir', 'si1145_uv', 'bpc'
     ]
     f_sort = [ # FEWSNET
         'rg1', 'rg2', 'rgt1', 'rgt2', 'rgp1', 'rgp2',
@@ -141,10 +142,11 @@ def sort_columns(columns:list, portal_name:str) -> list:
         'hth', 'bpc', 'bcs', 'css', 'cfr'
     ]
     d_sort = [ # Dominican Republic
-        'ht1', 'bt1', 'mt1', 'hh1', 'bmp_slp', 'bp1', 'rg', 'ws', 'wd', 'wg', 'wgd', 'sv1', 'si1', 'su1', 'hth', 'bpc'
+        'ht1', 'bt1', 'mt1', 'hh1', 'bmp_slp', 'bp1', 'rg', 'ws', 'wd', 'wd_compass_dir', 'wg', 'wgd', 'wgd_compass_dir', 
+        'sv1', 'si1', 'su1', 'hth', 'bpc'
     ]
     a_sort = [ # Argentina
-        'st1', 'bt1', 'mt1', 'sh1', 'bp1', 'rg', 'rgs', 'rgt', 'rgp', 'ws', 'wd', 'wg_compass_dir', 'wg', 'wgd', 'wgd_compass_dir', 
+        'st1', 'bt1', 'mt1', 'sh1', 'bp1', 'rg', 'rgs', 'rgt', 'rgp', 'ws', 'wd', 'wd_compass_dir', 'wg', 'wgd', 'wgd_compass_dir', 
         'sv1', 'si1', 'su1', 'hth', 'bpc', 'bcs', 'cfr', 'css'
     ]
     z_sort = [ # Zimbabwe
