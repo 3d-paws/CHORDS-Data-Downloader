@@ -10,7 +10,7 @@ User Parameter Breakdown:
     - null_value: [OPTIONAL] Enter whatever value should be used to signal no data (e.g. -999.99 or 'NaN'). Empty string by default (creates smaller files).
     - include_test: [OPTIONAL] Set to True to include boolean columns next to each data column which specify whether data collected was test data (False by default).
     - portal_url: The url for the CHORDS online portal.
-    - portal_name: The name of the CHORDS portal, choose from this list (case sensitive): Barbados, Trinidad, 3D PAWS, 3D Calibration, FEWNSET, Kenya, Cayman Islands
+    - portal_name: The name of the CHORDS portal for file naming purposes. Choose: Barbados, Trinidad, 3D PAWS, Calibration, FEWSNET, Kenya, Zimbabwe, Zambia, Argentina, Bangladesh, Dominican Republic
     - data_path: The absolute folder path specifying where the CSV files should be printed to locally.
     - instrument_IDs: All the instruments to download data from. Use the Instrument Id from CHORDS portal.
     - user_email: The email login information in order to access the CHORDS online portal.
@@ -22,17 +22,18 @@ User Parameter Breakdown:
     - time_window_end: [OPTIONAL] Timestamp from which to stop collecting subset of data (MUST be in the following format: 'HH:MM:SS') Includes all timestamps if left blank.
 
 Usage:
-    - If you want your download to exactly match a data download from CHORDS, it may be helpful to download a single day's worth of data off the CHORDS website 
-      to see the hour at which a new day starts. Depending on the portal, CHORDS will start a new day at 0600Z, 0700Z, or 0800Z. 
-    - Because CHORDS days aren't from midnight-to-midnight, the 'end' parameter must reflect the extension into the next day. 
-      e.g. June 20th for FEWSNET goes from 2024-06-20 06:00:00 to 2024-06-21 05:45:59
-    - Timestamps must include seconds, which could affect the 'end' parameter you chose to use. CHORDS timestamps are frequently timestamped at 01, 02, or 03 seconds,
-      so it may not be good enough for the 'end' parameter to read 23:59:00, for example, you may have to specify 23:59:59 to include that last datapoint on the 59th minute.
-    - To use the columns_desired parameter, which can be useful when downloading large datasets where you only care about a few columns, use the shortname listed on 
-      CHORDS for the variable you want to include (e.g. mcp9808 -> mt1)
-
+    - Note that timestamps are given in UTC.
+    - Cumulative parameters like rgt (rain gauge total) may not reset at UTC midnight.
+    - Timestamps must include seconds, which could affect the 'end' parameter you chose to use. 
+        CHORDS timestamps are frequently timestamped at 01, 02, or 03 seconds,
+        so it may not be good enough for the 'end' parameter to read 23:59:00, for example, 
+        you may have to specify 23:59:59 to include that last datapoint on the 59th minute.
+    - To use the columns_desired parameter, which can be useful when downloading large datasets where you may only care about a few columns, 
+      use the shortname listed on CHORDS for the variable you want to include (e.g. mcp9808 -> mt1)
+    
+      
     - EXAMPLE -------------------------------- 
-        A new day for the FEWS NET portal starts at 0600Z the study period is from Jan 1st through July 1st. This means the 'end' parameter will have to end on July 2nd 
+        A new day for the FEWSNET portal starts at 0600Z the study period is from Jan 1st through July 1st. This means the 'end' parameter will have to end on July 2nd 
             in order to capture the full CHORDS day.
         The first 24 stations transmit data every 15 minutes, so in order to capture the last observation in a day, the 'end' parameter is set to 05:45:59. 
         This analysis will only require daily rainfall data, so the shortnames 'rgt1', 'rgt2', 'rgp1', and 'rgp2' are specified in 'columns_desired'. This analysis doesn't require 
@@ -81,12 +82,12 @@ instrument_IDs = [
 ]
 user_email = ''
 api_key = '' 
-start = 'YYYY-MM-DD HH:MM:SS' # CHORDS starts a new day at 0600, 0700 or 0800, depending on the portal
+start = 'YYYY-MM-DD HH:MM:SS'
 end = 'YYYY-MM-DD HH:MM:SS'
 
-columns_desired = [] # it is important that the list be empty if no columns are to be specified!
-time_window_start = 'HH:MM:SS' # it is important that these be empty strings if no time window is to be specified!
-time_window_end = 'HH:MM:SS' 
+columns_desired = [] # OPTIONAL             it is important that the list be empty if no columns are to be specified!
+time_window_start = 'HH:MM:SS' # OPTIONAL   it is important that these be empty strings if no time window is to be specified!
+time_window_end = 'HH:MM:SS' # OPTIONAL
 
 # MAIN PROGRAM ------------------------------------------------------------------------------------------------------------------------
 
