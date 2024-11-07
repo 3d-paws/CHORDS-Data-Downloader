@@ -130,7 +130,6 @@ def main():
 
         print(f"---> Reading instrument ID {iD}\t\t\t\t\t\t\t{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-        #if time_window_start == "" and time_window_end == "":
         time = [] # list of strings  (e.g. '2023-12-17T00:00:04Z')
         measurements = [] # list of dictionaries  (e.g. {'t1': 25.3, 'uv1': 2, 'rh1': 92.7, 'sp1': 1007.43, 't2': 26.9, 'vis1': 260, 'ir1': 255, 'msl1': 1013.01, 't3': 26.1})
         test = [] # list of strings of whether data point is a test value (either 'true' or 'false')
