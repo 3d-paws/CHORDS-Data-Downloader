@@ -7,7 +7,7 @@ A new CSV is created for each instrument.
 To use this script, fill out the user parameters before the main program.
 
 User Parameter Breakdown:
-    - null_value: [OPTIONAL] Enter whatever value should be used to signal no data (e.g. -999.99 or 'NaN'). Empty string by default (creates smaller files).
+    - fill_empty: [OPTIONAL] Enter whatever value should be used to signal no data (e.g. -999.99 or 'NaN'). Empty string by default (creates smaller files).
     - include_test: [OPTIONAL] Set to True to include boolean columns next to each data column which specify whether data collected was test data (False by default).
     - portal_url: The url for the CHORDS online portal.
     - portal_name: The name of the CHORDS portal for file naming purposes. Choose: Barbados, Trinidad, 3D PAWS, Calibration, FEWSNET, Kenya, Zimbabwe, Zambia, Argentina, Bangladesh, Dominican Republic
@@ -30,6 +30,7 @@ Usage:
         you may have to specify 23:59:59 to include that last datapoint on the 59th minute.
     - To use the columns_desired parameter, which can be useful when downloading large datasets where you may only care about a few columns, 
       use the shortname listed on CHORDS for the variable you want to include (e.g. mcp9808 -> mt1)
+    - The fill_empty parameter fills empty data cells, it is not used to specify null values.
     
       
     - EXAMPLE -------------------------------- 
@@ -41,7 +42,7 @@ Usage:
             filter the data between 05:45:00 and 06:00:59 to capture this reset.
 
             
-        null_value = ''
+        fill_empty = ''
         include_test = False
         portal_url = r"https://3d-fewsnet.icdp.ucar.edu/" 
         portal_name = "FEWSNET"
@@ -71,7 +72,7 @@ import resources
 
 # User Parameters ----------------------------------------------------------------------------------------------------------------
 
-null_value = '' # OPTIONAL
+fill_empty = '' # OPTIONAL
 include_test = False # OPTIONAL
 
 portal_url = r"https://chords.portal.com/"
@@ -146,7 +147,7 @@ def main():
             if resources.has_excess_datapoints(all_fields): # reduce timeframe in API call
                 print("\t Large data request -- reducing.")
                 reduced_data = resources.reduce_datapoints(all_fields['errors'][0], int(iD), timestamp_start, timestamp_end, \
-                                                    portal_url, user_email, api_key, null_value)    # list
+                                                    portal_url, user_email, api_key, fill_empty)    # list
                                                                                         # e.g. [time, measurements, test, total_num_measurements]
                 time = reduced_data[0]
                 measurements = reduced_data[1]
@@ -160,7 +161,7 @@ def main():
                     time.append(str(data[i]['time']))
                     total_num_measurements += len(data[i]['measurements'].keys())
                     total_num_timestamps += 1
-                    to_append = resources.write_compass_direction(dict(data[i]['measurements']), null_value)
+                    to_append = resources.write_compass_direction(dict(data[i]['measurements']), fill_empty)
                     measurements.append(to_append)
                     test.append(str(data[i]['test']))
 
@@ -168,7 +169,7 @@ def main():
         else: # if a time window was specified by user
             print(f"\t\t Time window specified.\n\t\t Returning data from {time_window_start} -> {time_window_end}")
             window_data = resources.time_window(int(iD), timestamp_start, timestamp_end, timestamp_window_start, timestamp_window_end, \
-                                        portal_url, user_email, api_key, null_value) # a list [time, measurements, test, total_num_measurements]
+                                        portal_url, user_email, api_key, fill_empty) # a list [time, measurements, test, total_num_measurements]
             time = window_data[0]
             measurements = window_data[1]
             test = window_data[2]
@@ -182,7 +183,7 @@ def main():
         if resources.struct_has_data(measurements, time, test): 
             csv = f"\\{portal_name}_ID{iD}_{timestamp_start.date()}_{timestamp_end.date()}.csv"
             file_path = data_path + csv
-            resources.csv_builder(headers, time, measurements, test, file_path, include_test, null_value)
+            resources.csv_builder(headers, time, measurements, test, file_path, include_test, fill_empty)
             print(f"\t Finished writing to file.\t\t\t\t\t\t{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
             print(f"\t Total number of measurements: {total_num_measurements}")
         else:
