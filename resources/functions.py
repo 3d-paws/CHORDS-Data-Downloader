@@ -277,8 +277,8 @@ def csv_builder(headers:list, time:np.ndarray, measurements:np.ndarray, test:np.
         
         df = pd.DataFrame(data, columns=headers)
         df['time'] = pd.to_datetime(df['time'])
-        print(filepath)
         df.to_csv(filepath, index=False)
+        return df
     else:
         raise TimestampError()
     
@@ -343,88 +343,6 @@ def has_errors(all_fields:dict) -> bool:
                 
     return False
 
-"""
-Handles specific time window requested by user. Stores only data that falls into the time window specified and returns data from API pull as a list of lists.
-
-TO DO: Increase efficiency. Currently steps through day-by-day, will take forever for large amounts of data.
-       Use Pandas for this purpose because it is undoubtedbly better
-"""
-def time_window(iD:int, timestamp_start:datetime, timestamp_end:datetime, timestamp_window_start:dt_time, \
-                                timestamp_window_end:dt_time, portal_url:str, user_email:str, api_key:str, fill_empty) -> list:
-    if not isinstance(iD, int):
-        raise TypeError(f"The 'iD' parameter in time_window() should be of type <int>, passed: {type(iD)}")
-    if not isinstance(timestamp_start, datetime):
-        raise TypeError(f"The 'timestamp_start' parameter in time_window() should be of type <datetime>, passed: {type(timestamp_start)}")
-    if not isinstance(timestamp_end, datetime):
-        raise TypeError(f"The 'timestamp_end' parameter in time_window() should be of type <datetime>, passed: {type(timestamp_end)}")
-    if not isinstance(timestamp_window_start, dt_time):
-        raise TypeError(f"The 'timestamp_window_start' parameter in time_window() should be of type <datetime.time>, passed: {type(timestamp_window_start)}")
-    if not isinstance(timestamp_window_end, dt_time):
-        raise TypeError(f"The 'timestamp_window_end' parameter in time_window() should be of type <datetime.time>, passed: {type(timestamp_window_end)}")
-    if not isinstance(portal_url, str):
-        raise TypeError(f"The 'portal_url' parameter in time_window() should be of type <str>, passed: {type(portal_url)}")
-    if not isinstance(user_email, str):
-        raise TypeError(f"The 'user_email' parameter in time_window() should be of type <str>, passed: {type(user_email)}")
-    if not isinstance(api_key, str):
-        raise TypeError(f"The 'api_key' parameter in time_window() should be of type <str>, passed: {type(api_key)}")
-
-    time = []
-    measurements = []
-    test = []
-    total_num_measurements = 0
-
-    date_start = timestamp_start.date()
-    if datetime.combine(date_start, timestamp_window_start) >= timestamp_start: 
-        time_window_begin = datetime.combine(date_start, timestamp_window_start)
-        time_window_stop = datetime.combine(date_start, timestamp_window_end)
-
-        url = f"{portal_url}/api/v1/data/{iD}?start={time_window_begin}&end={time_window_stop}&email={user_email}&api_key={api_key}"
-        response = requests.get(url=url)
-        all_fields = loads(dumps(response.json()))
-
-        if has_errors(all_fields):
-                sys.exit(1)
-
-        data = all_fields['features'][0]['properties']['data']
-        for dictionary in data:
-                time.append(str(dictionary['time']))
-                total_num_measurements += len(dictionary['measurements'].keys())
-                to_append = write_compass_direction(dict(dictionary['measurements']), fill_empty)
-                measurements.append(to_append)
-                test.append(str(dictionary['test']))
-
-    i = 0 
-    next_date = date_start + timedelta(days=1)
-    while datetime.combine(next_date, timestamp_window_end) < timestamp_end:
-        time_window_begin = datetime.combine(next_date, timestamp_window_start)
-        time_window_stop = datetime.combine(next_date, timestamp_window_end)
-
-        url = f"{portal_url}/api/v1/data/{iD}?start={time_window_begin}&end={time_window_stop}&email={user_email}&api_key={api_key}"
-        response = requests.get(url=url)
-        all_fields = loads(dumps(response.json()))
-
-        if has_errors(all_fields):
-            sys.exit(1)
-
-        data = all_fields['features'][0]['properties']['data']
-        for dictionary in data:
-                time.append(str(dictionary['time']))
-                total_num_measurements += len(dictionary['measurements'].keys())
-                to_append = write_compass_direction(dict(dictionary['measurements']), fill_empty)
-                measurements.append(to_append)
-                test.append(str(dictionary['test']))
-
-        next_date = next_date + timedelta(days=1)
-
-        i += 1
-        if i == 100:
-            print("\t\t Large data request.")
-            print("\t\t\t Getting next data segment...")
-        elif i%100 == 0:
-            print("\t\t\t Getting next data segment...")
-
-    return [time, measurements, test, total_num_measurements]
-
 
 """
 Helper function for reduce_datapoints() that breaks up large time frames into smaller benchmark timestamps.
@@ -472,9 +390,9 @@ def get_time(timestamp:str) -> datetime:
     return datetime.strptime(timestamp[11:19], format_str)
 
 """
-Handles data request error where number of data points exceeds that allowed. Returns a list of new timestamps for which 
-to run the API request to CHORDS s.t. the number of data points requested is less than the max allowed. Returns the 
-lists of data necessary for main() to build csv's.
+Handles data request error where number of data points exceeds that allowed. Utilizes an exponential backoff method.
+Returns a list of new timestamps for which to run the API request to CHORDS s.t. the number of data points requested 
+is less than the max allowed. Returns the lists of data necessary for main() to build csv's.
 """
 def reduce_datapoints(error_message:str, iD:int, timestamp_start:datetime, timestamp_end:datetime, \
                                                         portal_url:str, user_email:str, api_key:str, fill_empty) -> list:
@@ -539,3 +457,29 @@ def reduce_datapoints(error_message:str, iD:int, timestamp_start:datetime, times
         
     print("\t Finished reduction calculation.")
     return [time, measurements, test, total_num_measurements]
+
+
+"""
+Handles specific time window requested by user. Stores only data that falls into the time window specified and returns data from API pull as a list of lists.
+
+TO DO: Increase efficiency. Currently steps through day-by-day, will take forever for large amounts of data.
+       Use Pandas for this purpose because it is undoubtedbly better
+"""
+def time_window(df:pd.DataFrame, time_window_start:dt_time, time_window_end:dt_time, filepath:str) -> list:
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError(f"The 'df' parameter in time_window() should be of type <pd.DataFrame>, passed: {type(df)}")
+    if not isinstance(time_window_start, dt_time):
+        raise TypeError(f"The 'time_window_start' parameter in time_window() should be of type <dt_time>, passed: {type(time_window_start)}")
+    if not isinstance(time_window_end, dt_time):
+        raise TypeError(f"The 'time_window_end' parameter in time_window() should be of type <dt_time>, passed: {type(time_window_end)}")
+    if not isinstance(filepath, str):
+        raise TypeError(f"The 'filepath' parameter in time_window() should be of type <str>, passed: {type(filepath)}")
+    
+    df['time_only'] = df['time'].dt.time
+    reduced = df[(df['time_only'] >= time_window_start) & (df['time_only'] <= time_window_end)]
+    pd.options.mode.chained_assignment = None  # Suppresses the warning
+    reduced.drop(columns=['time_only'], inplace=True)
+    reduced.set_index('time', inplace=True)
+    reduced.to_csv(filepath)
+
+    return reduced
