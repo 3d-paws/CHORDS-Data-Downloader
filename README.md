@@ -27,3 +27,29 @@ pip install requests pandas numpy
 
 ## Documentation
 In-depth documentation may be found at: https://docs.google.com/document/d/1qqs5X0vSslAEYBxlAh95oDgC1dG5xmBKVknz7wl1QxA/edit?usp=sharing
+
+## Usage
+To use this script, simply modify the user parameters to your specifications.
+Below are the parameters you will interact with. 
+
+REQUIRED: portal_url, portal_name, data_path, instrument_IDs, user_email, api_key, start, end
+
+```python
+fill_empty = '' # OPTIONAL
+include_test = False # OPTIONAL
+
+portal_url = r"https://chords.portal.com/"
+portal_name = "PORTAL NAME"
+data_path = r"C://path//to//local//storage//" 
+instrument_IDs = [
+    1,2,3
+]
+user_email = ''
+api_key = '' 
+start = 'YYYY-MM-DD HH:MM:SS'
+end = 'YYYY-MM-DD HH:MM:SS'
+
+columns_desired = [] # OPTIONAL             it is important that the list be empty if no columns are to be specified!
+time_window_start = 'HH:MM:SS' # OPTIONAL   it is important that these be empty strings if no time window is to be specified!
+time_window_end = 'HH:MM:SS' # OPTIONAL
+```
